@@ -27,6 +27,20 @@ class DoctorTests(unittest.TestCase):
         self.assertEqual({(i["locale"], i["kind"]) for i in issues},
                          {("es", "placeholder"), ("ru", "missing")})
 
+    def test_explicit_source_value_and_key_fallback(self):
+        def unit(value):
+            return {"stringUnit": {"state": "translated", "value": value}}
+        doc = {"sourceLanguage": "en", "strings": {
+            "greeting": {"localizations": {"en": unit("Hello %@"), "fr": unit("Bonjour %@")}},
+            "count %lld": {"localizations": {"fr": unit("Nombre %lld")}},
+        }}
+        self.assertEqual(check_catalog("app.xcstrings", doc, ["fr"]), [])
+        doc["strings"]["greeting"]["localizations"]["fr"] = unit("Bonjour")
+        doc["strings"]["count %lld"]["localizations"]["fr"] = unit("Nombre")
+        issues = check_catalog("app.xcstrings", doc, ["fr"])
+        self.assertEqual({(issue["key"], issue["kind"]) for issue in issues},
+                         {("greeting", "placeholder"), ("count %lld", "placeholder")})
+
     def test_staged_config_and_catalogs(self):
         with tempfile.TemporaryDirectory(prefix="doctor-") as temp:
             root = Path(temp)

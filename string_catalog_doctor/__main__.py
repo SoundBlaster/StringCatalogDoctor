@@ -68,6 +68,10 @@ def check_catalog(path, doc, locales, excluded_keys=()):
             raise ValueError(f"{path}: malformed entry {key!r}")
         if entry.get("shouldTranslate") is False or key in excluded_keys:
             continue
+        source = entry.get("localizations", {}).get(source_language, {})
+        source_unit = source.get("stringUnit", {}) if isinstance(source, dict) else {}
+        source_value = source_unit.get("value") if isinstance(source_unit, dict) else None
+        format_source = source_value if isinstance(source_value, str) else key
         for locale in locales:
             if locale == source_language:
                 continue
@@ -90,7 +94,7 @@ def check_catalog(path, doc, locales, excluded_keys=()):
                     issue("empty", variant)
                 elif unit.get("state") != "translated":
                     issue("untranslated", variant)
-                elif not variant and placeholders(key) != placeholders(value):
+                elif not variant and placeholders(format_source) != placeholders(value):
                     issue("placeholder", variant)
     return issues
 
