@@ -67,6 +67,19 @@ class DoctorTests(unittest.TestCase):
                                     capture_output=True)
             self.assertEqual(result.returncode, 2)
 
+    def test_malformed_catalog_fails_without_traceback(self):
+        with tempfile.TemporaryDirectory(prefix="doctor-") as temp:
+            root = Path(temp)
+            (root / ".string-catalog-doctor.json").write_text(json.dumps({
+                "version": 1, "catalogs": [{"path": "catalog.xcstrings"}],
+                "locales": ["es"], "baseline": "baseline.json"
+            }))
+            (root / "catalog.xcstrings").write_text("[]")
+            result = subprocess.run([sys.executable, str(TOOL), "--root", str(root)],
+                                    capture_output=True, text=True)
+            self.assertEqual(result.returncode, 2)
+            self.assertNotIn("Traceback", result.stderr)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -166,7 +166,7 @@ def main():
         if resolved:
             print("Remove resolved findings with: string-catalog-doctor --prune-baseline")
         return 1 if new or resolved else 0
-    except (OSError, ValueError, TypeError, KeyError, json.JSONDecodeError) as error:
+    except (OSError, ValueError, TypeError, KeyError, AttributeError, json.JSONDecodeError) as error:
         print(f"strings-check: {error}", file=sys.stderr)
         return 2
 
