@@ -42,3 +42,6 @@ The caller owns installation, pinning and ensuring a pre-commit hook executes
 the intended version of the tool.
 
 Run tests using `python3 -m unittest discover -s tests -v`.
+
+For agent-assisted integration and checking, see the
+[`string-catalog-doctor` skill](.agents/skills/string-catalog-doctor/SKILL.md).
